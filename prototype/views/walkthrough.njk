@@ -1,0 +1,156 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}CCD Features - Assessment{% endblock %}
+
+{% block head %}
+<style>
+.feature-card {
+  position: relative;
+  border-left: 4px solid #1d70b8;
+  padding: 20px;
+  margin-bottom: 30px;
+  background: #f3f2f1;
+}
+
+.feature-info {
+  cursor: help;
+  display: inline-block;
+  position: relative;
+}
+
+.feature-user-story {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background: #0b0c0c;
+  color: #ffffff;
+  padding: 15px;
+  border-radius: 4px;
+  width: 400px;
+  max-width: 90vw;
+  left: 0;
+  top: 100%;
+  margin-top: 5px;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.feature-info:hover .feature-user-story {
+  display: block;
+}
+
+.feature-user-story::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #0b0c0c;
+}
+
+.feature-user-story p {
+  margin: 0 0 10px 0;
+}
+
+.feature-user-story p:last-child {
+  margin-bottom: 0;
+}
+
+.feature-user-story strong {
+  color: #ffffff;
+  display: block;
+  margin-bottom: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <a href="/assessment/{{ assessment.id }}/intro/{{ componentCode }}" class="govuk-back-link">Back</a>
+        
+        <span class="govuk-caption-xl">Component {{ componentNumber }} of {{ totalComponents }}</span>
+        <h1 class="govuk-heading-xl">{{ componentName }} Features</h1>
+        
+        <div class="govuk-panel govuk-panel--confirmation" style="background-color: #f3f2f1; margin-bottom: 30px;">
+          <div class="govuk-panel__body" style="color: #0b0c0c;">
+            <strong>Assessment code:</strong> {{ assessment.code }}
+          </div>
+        </div>
+        
+        <p class="govuk-body-l">For each feature below, indicate whether your service needs it. Hover over the feature name to see the user story.</p>
+        
+        <form method="POST" action="/assessment/{{ assessment.id }}/walkthrough/{{ componentCode }}">
+          {% for feature in features %}
+          <div class="feature-card">
+            <h2 class="govuk-heading-m">
+              <span class="feature-info">
+                {{ feature.feature_name }}
+                <div class="feature-user-story">
+                  <strong>As a {{ feature.as_a }}</strong>
+                  <p><strong>I want:</strong> {{ feature.i_want }}</p>
+                  <p><strong>So that:</strong> {{ feature.expected_outcomes }}</p>
+                </div>
+              </span>
+            </h2>
+            
+            <p class="govuk-body">{{ feature.description }}</p>
+            
+            <div class="govuk-form-group">
+              <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-visually-hidden">
+                  Does your service need {{ feature.feature_name }}?
+                </legend>
+                <div class="govuk-radios govuk-radios--inline govuk-radios--small">
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="{{ feature.unique_id }}-yes" name="{{ feature.unique_id }}" type="radio" value="yes" {% if responseMap[feature.unique_id] == 'yes' %}checked{% endif %}>
+                    <label class="govuk-label govuk-radios__label" for="{{ feature.unique_id }}-yes">
+                      Yes
+                    </label>
+                  </div>
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="{{ feature.unique_id }}-no" name="{{ feature.unique_id }}" type="radio" value="no" {% if responseMap[feature.unique_id] == 'no' %}checked{% endif %}>
+                    <label class="govuk-label govuk-radios__label" for="{{ feature.unique_id }}-no">
+                      No
+                    </label>
+                  </div>
+                  <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="{{ feature.unique_id }}-maybe" name="{{ feature.unique_id }}" type="radio" value="maybe" {% if responseMap[feature.unique_id] == 'maybe' %}checked{% endif %}>
+                    <label class="govuk-label govuk-radios__label" for="{{ feature.unique_id }}-maybe">
+                      Maybe
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          {% endfor %}
+          
+          <div class="govuk-button-group">
+            <button type="submit" name="action" value="next" class="govuk-button" data-module="govuk-button">
+              {% if componentNumber < totalComponents %}
+              Save & continue to next component
+              {% else %}
+              Save & continue to summary
+              {% endif %}
+            </button>
+            <button type="submit" name="action" value="summary" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              Save & go to summary
+            </button>
+          </div>
+        </form>
+        
+        <p class="govuk-body" style="margin-top: 20px;">
+          <a href="/assessment/{{ assessment.id }}/summary" class="govuk-link">View summary (without saving changes)</a>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

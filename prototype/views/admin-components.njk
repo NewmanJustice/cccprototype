@@ -1,0 +1,46 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Manage Components - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <a href="/admin" class="govuk-back-link">Back to dashboard</a>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="govuk-heading-xl">Manage Components</h1>
+          <a href="/admin/logout" class="govuk-link">Sign out</a>
+        </div>
+        
+        <a href="/admin/component/new" class="govuk-button" data-module="govuk-button">
+          Add new component
+        </a>
+        
+        <table class="govuk-table" style="margin-top: 30px;">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Code</th>
+              <th scope="col" class="govuk-table__header">Component Name</th>
+              <th scope="col" class="govuk-table__header">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for component in components %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ component.component_code }}</td>
+              <td class="govuk-table__cell">{{ component.component_name }}</td>
+              <td class="govuk-table__cell">
+                <a href="/admin/component/{{ component.component_code }}/edit" class="govuk-link">Edit</a> |
+                <a href="/admin/component/{{ component.component_code }}/delete-confirm" class="govuk-link" style="color: #d4351c;">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

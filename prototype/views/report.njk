@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="govuk-template">
+<head>
+  <meta charset="utf-8">
+  <title>Assessment Report - {{ assessment.service_name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/govuk-frontend.min.css">
+  <style>
+    @media print {
+      .no-print {
+        display: none;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+    
+    .response-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    .response-yes {
+      background-color: #00703c;
+      color: white;
+    }
+    
+    .response-no {
+      background-color: #505a5f;
+      color: white;
+    }
+    
+    .response-maybe {
+      background-color: #f47738;
+      color: white;
+    }
+    
+    .response-not-answered {
+      background-color: #f3f2f1;
+      color: #0b0c0c;
+    }
+    
+    .feature-detail {
+      border-left: 4px solid #1d70b8;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: #f8f8f8;
+    }
+    
+    .component-section {
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body class="govuk-template__body">
+  <div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+      <div class="no-print" style="margin-bottom: 30px;">
+        <a href="/assessment/{{ assessment.id }}/summary" class="govuk-back-link">Back to summary</a>
+      </div>
+      
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+          <h1 class="govuk-heading-xl">Assessment Report</h1>
+          
+          <dl class="govuk-summary-list" style="margin-bottom: 40px;">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Assessment code</dt>
+              <dd class="govuk-summary-list__value">{{ assessment.code }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Service name</dt>
+              <dd class="govuk-summary-list__value">{{ assessment.service_name }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Service type</dt>
+              <dd class="govuk-summary-list__value">{{ assessment.service_type }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Assessed by</dt>
+              <dd class="govuk-summary-list__value">{{ assessment.user_name }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Last updated</dt>
+              <dd class="govuk-summary-list__value">{{ assessment.updated_at }}</dd>
+            </div>
+          </dl>
+          
+          <div class="no-print govuk-button-group" style="margin-bottom: 40px;">
+            <button type="button" class="govuk-button" data-module="govuk-button" onclick="window.print()">
+              Print this report
+            </button>
+            <a href="/assessment/{{ assessment.id }}/export-csv" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              Download CSV
+            </a>
+          </div>
+          
+          {% for component in components %}
+          <div class="component-section {% if not loop.first %}page-break{% endif %}">
+            <h2 class="govuk-heading-l">{{ component.name }} ({{ component.code }})</h2>
+            
+            {% set yesCount = 0 %}
+            {% set noCount = 0 %}
+            {% set maybeCount = 0 %}
+            {% set notAnsweredCount = 0 %}
+            
+            {% for feature in component.features %}
+              {% if feature.response == 'yes' %}
+                {% set yesCount = yesCount + 1 %}
+              {% elif feature.response == 'no' %}
+                {% set noCount = noCount + 1 %}
+              {% elif feature.response == 'maybe' %}
+                {% set maybeCount = maybeCount + 1 %}
+              {% else %}
+                {% set notAnsweredCount = notAnsweredCount + 1 %}
+              {% endif %}
+            {% endfor %}
+            
+            <div class="govuk-inset-text">
+              <p><strong>Summary:</strong> {{ component.features.length }} features</p>
+              <p>
+                <span class="govuk-tag govuk-tag--green">{{ yesCount }} Yes</span>
+                <span class="govuk-tag govuk-tag--grey">{{ noCount }} No</span>
+                <span class="govuk-tag govuk-tag--yellow">{{ maybeCount }} Maybe</span>
+                {% if notAnsweredCount > 0 %}
+                <span class="govuk-tag">{{ notAnsweredCount }} Not answered</span>
+                {% endif %}
+              </p>
+            </div>
+            
+            {% for feature in component.features %}
+            <div class="feature-detail">
+              <h3 class="govuk-heading-m" style="margin-top: 0;">
+                {{ feature.name }}
+                <span class="response-badge response-{{ feature.response }}">
+                  {{ feature.response | upper }}
+                </span>
+              </h3>
+              
+              <p class="govuk-body"><strong>Feature ID:</strong> {{ feature.id }}</p>
+              
+              <p class="govuk-body">{{ feature.description }}</p>
+              
+              {% if feature.response != 'Not answered' %}
+              <details class="govuk-details" data-module="govuk-details">
+                <summary class="govuk-details__summary">
+                  <span class="govuk-details__summary-text">
+                    View user story
+                  </span>
+                </summary>
+                <div class="govuk-details__text">
+                  <p class="govuk-body"><strong>As a:</strong> {{ feature.as_a }}</p>
+                  <p class="govuk-body"><strong>I want:</strong> {{ feature.i_want }}</p>
+                  <p class="govuk-body"><strong>So that:</strong> {{ feature.expected_outcomes }}</p>
+                </div>
+              </details>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+          
+          <div class="no-print" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #b1b4b6;">
+            <p class="govuk-body">
+              <a href="/assessment/{{ assessment.id }}/summary" class="govuk-link">Back to summary</a> |
+              <a href="/features" class="govuk-link">Browse all features</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="/govuk-frontend.min.js"></script>
+  <script>window.GOVUKFrontend.initAll()</script>
+</body>
+</html>

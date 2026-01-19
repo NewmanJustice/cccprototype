@@ -1,0 +1,275 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}{% if editing %}Edit{% else %}Add{% endif %} Feature - Admin{% endblock %}
+
+{% block head %}
+<script>
+async function handleComponentChange() {
+  const componentCode = document.getElementById('component_code').value;
+  const groupModeRadios = document.getElementsByName('group_mode');
+  const existingGroupSection = document.getElementById('existing-group-section');
+  const newGroupSection = document.getElementById('new-group-section');
+  const groupSelect = document.getElementById('feature_group_code');
+  const featureIdDisplay = document.getElementById('feature_id_display');
+  
+  if (!componentCode) {
+    existingGroupSection.style.display = 'none';
+    newGroupSection.style.display = 'none';
+    return;
+  }
+  
+  // Load existing groups for this component
+  try {
+    const response = await fetch(`/admin/api/feature-groups/${componentCode}`);
+    const groups = await response.json();
+    
+    groupSelect.innerHTML = '<option value="">Select a feature group</option>';
+    groups.forEach(group => {
+      const option = document.createElement('option');
+      option.value = group.feature_group_code;
+      const displayText = group.feature_group_name 
+        ? `${group.feature_group_code} - ${group.feature_group_name}`
+        : `Group ${group.feature_group_code}`;
+      option.textContent = displayText;
+      groupSelect.appendChild(option);
+    });
+    
+    // Show appropriate section based on whether groups exist
+    if (groups.length > 0) {
+      groupModeRadios[0].checked = true;
+      existingGroupSection.style.display = 'block';
+      newGroupSection.style.display = 'none';
+      handleGroupModeChange();
+    } else {
+      groupModeRadios[1].checked = true;
+      existingGroupSection.style.display = 'none';
+      newGroupSection.style.display = 'block';
+      loadNextGroupCode();
+    }
+  } catch (error) {
+    console.error('Error loading groups:', error);
+  }
+}
+
+async function handleGroupModeChange() {
+  const mode = document.querySelector('input[name="group_mode"]:checked').value;
+  const existingGroupSection = document.getElementById('existing-group-section');
+  const newGroupSection = document.getElementById('new-group-section');
+  
+  if (mode === 'existing') {
+    existingGroupSection.style.display = 'block';
+    newGroupSection.style.display = 'none';
+    handleGroupSelect();
+  } else {
+    existingGroupSection.style.display = 'none';
+    newGroupSection.style.display = 'block';
+    loadNextGroupCode();
+  }
+}
+
+async function handleGroupSelect() {
+  const componentCode = document.getElementById('component_code').value;
+  const groupCode = document.getElementById('feature_group_code').value;
+  const featureIdDisplay = document.getElementById('feature_id_display');
+  
+  if (!componentCode || !groupCode) {
+    featureIdDisplay.textContent = '';
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/admin/api/next-feature-id/${componentCode}/${groupCode}`);
+    const data = await response.json();
+    featureIdDisplay.textContent = `Next feature ID will be: ${data.nextId}`;
+  } catch (error) {
+    console.error('Error loading next feature ID:', error);
+  }
+}
+
+async function loadNextGroupCode() {
+  const componentCode = document.getElementById('component_code').value;
+  const groupCodeDisplay = document.getElementById('group_code_display');
+  const featureIdDisplay2 = document.getElementById('feature_id_display2');
+  
+  if (!componentCode) return;
+  
+  try {
+    const response = await fetch(`/admin/api/next-group-code/${componentCode}`);
+    const data = await response.json();
+    groupCodeDisplay.textContent = `New group code will be: ${data.nextCode}`;
+    featureIdDisplay2.textContent = 'Feature ID will be: 001';
+  } catch (error) {
+    console.error('Error loading next group code:', error);
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/features" class="govuk-back-link">Back to features</a>
+        
+        <h1 class="govuk-heading-xl">{% if editing %}Edit{% else %}Add New{% endif %} Feature</h1>
+        
+        {% if error %}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+              <li>{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{% if editing %}/admin/feature/{{ feature.unique_id }}/edit{% else %}/admin/feature/new{% endif %}" novalidate>
+          {% if not editing %}
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="component_code">
+              Component
+            </label>
+            <select class="govuk-select" id="component_code" name="component_code" onchange="handleComponentChange()" required>
+              <option value="">Select a component</option>
+              {% for component in components %}
+              <option value="{{ component.component_code }}" {% if feature and feature.component_code == component.component_code %}selected{% endif %}>
+                {{ component.component_code }} - {{ component.component_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Feature Group
+              </legend>
+              <div class="govuk-radios" data-module="govuk-radios">
+                <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="group_mode_existing" name="group_mode" type="radio" value="existing" onchange="handleGroupModeChange()">
+                  <label class="govuk-label govuk-radios__label" for="group_mode_existing">
+                    Add to existing feature group
+                  </label>
+                </div>
+                <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="group_mode_new" name="group_mode" type="radio" value="new" onchange="handleGroupModeChange()">
+                  <label class="govuk-label govuk-radios__label" for="group_mode_new">
+                    Create new feature group
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          
+          <div id="existing-group-section" style="display: none;">
+            <div class="govuk-form-group">
+              <label class="govuk-label" for="feature_group_code">
+                Select Feature Group
+              </label>
+              <select class="govuk-select" id="feature_group_code" name="feature_group_code" onchange="handleGroupSelect()">
+                <option value="">Select a feature group</option>
+              </select>
+            </div>
+            <p class="govuk-body" id="feature_id_display" style="color: #505a5f; margin-top: 10px;"></p>
+          </div>
+          
+          <div id="new-group-section" style="display: none;">
+            <div class="govuk-form-group">
+              <label class="govuk-label" for="new_group_name">
+                Feature Group Name (optional)
+              </label>
+              <div class="govuk-hint">
+                Describe what this group of features represents (e.g., "Case Creation", "Document Management")
+              </div>
+              <input class="govuk-input" id="new_group_name" name="new_group_name" type="text" value="{{ feature.new_group_name if feature else '' }}">
+            </div>
+            <p class="govuk-body" id="group_code_display" style="color: #505a5f; margin-top: 10px;"></p>
+            <p class="govuk-body" id="feature_id_display2" style="color: #505a5f;"></p>
+          </div>
+          {% else %}
+          <div class="govuk-inset-text">
+            <p><strong>Feature ID:</strong> {{ feature.unique_id }}</p>
+            <p><strong>Component:</strong> {{ feature.component_code }} - {{ feature.component_name }}</p>
+            <p><strong>Group Code:</strong> {{ feature.feature_group_code }}</p>
+            <p><strong>Feature ID:</strong> {{ feature.feature_id }}</p>
+          </div>
+          {% endif %}
+          
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="feature_name">
+              Feature Name
+            </label>
+            <input class="govuk-input" id="feature_name" name="feature_name" type="text" value="{{ feature.feature_name if feature else '' }}" required>
+          </div>
+          
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="description">
+              Description
+            </label>
+            <textarea class="govuk-textarea" id="description" name="description" rows="4" required>{{ feature.description if feature else '' }}</textarea>
+          </div>
+          
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                User Roles
+              </legend>
+              <div class="govuk-hint">
+                Select all user roles that this feature applies to
+              </div>
+              <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                {% for role in userRoles %}
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="user_role_{{ loop.index }}" name="user_roles" type="checkbox" value="{{ role }}" 
+                    {% if feature and feature.selected_roles and role in feature.selected_roles %}checked{% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="user_role_{{ loop.index }}">
+                    {{ role }}
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
+            </fieldset>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="i_want">
+              I want
+            </label>
+            <textarea class="govuk-textarea" id="i_want" name="i_want" rows="3">{{ feature.i_want if feature else '' }}</textarea>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="expected_outcomes">
+              So that (Expected Outcomes)
+            </label>
+            <textarea class="govuk-textarea" id="expected_outcomes" name="expected_outcomes" rows="3">{{ feature.expected_outcomes if feature else '' }}</textarea>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="service_type">
+              Service Type
+            </label>
+            <select class="govuk-select" id="service_type" name="service_type">
+              <option value="Cross-cutting" {% if feature and feature.service_type == 'Cross-cutting' %}selected{% endif %}>Cross-cutting</option>
+              <option value="CFT" {% if feature and feature.service_type == 'CFT' %}selected{% endif %}>CFT</option>
+              <option value="Civil" {% if feature and feature.service_type == 'Civil' %}selected{% endif %}>Civil</option>
+              <option value="Crime" {% if feature and feature.service_type == 'Crime' %}selected{% endif %}>Crime</option>
+              <option value="Family" {% if feature and feature.service_type == 'Family' %}selected{% endif %}>Family</option>
+              <option value="Tribunals" {% if feature and feature.service_type == 'Tribunals' %}selected{% endif %}>Tribunals</option>
+            </select>
+          </div>
+          
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+              {% if editing %}Update{% else %}Create{% endif %} feature
+            </button>
+            <a class="govuk-link" href="/admin/features">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

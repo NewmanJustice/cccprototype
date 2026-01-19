@@ -1,0 +1,89 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Bulk Upload Features - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin" class="govuk-back-link">Back to dashboard</a>
+
+        <h1 class="govuk-heading-xl">Bulk Upload Features</h1>
+
+        {% if error %}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">{{ error }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <p class="govuk-body">
+          Use this page to add multiple new features to the existing catalogue at once. 
+          Features will be auto-assigned unique IDs based on their component and feature group.
+        </p>
+
+        <div class="govuk-inset-text">
+          <p class="govuk-body govuk-!-font-weight-bold">Before uploading:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>Download the template file</li>
+            <li>Fill in your features (do not add unique IDs)</li>
+            <li>Ensure component codes match existing components</li>
+          </ul>
+        </div>
+
+        <h2 class="govuk-heading-m">Step 1: Download template</h2>
+        <p class="govuk-body">
+          <a href="/templates/Bulk_Upload_Template.xlsx" class="govuk-link" download>
+            Download Bulk Upload Template (Excel)
+          </a>
+        </p>
+
+        <h2 class="govuk-heading-m">Step 2: Upload completed file</h2>
+
+        <form method="POST" action="/admin/bulk-upload" enctype="multipart/form-data">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="file">
+              Select Excel file
+            </label>
+            <input class="govuk-file-upload" id="file" name="file" type="file" accept=".xlsx,.xls">
+          </div>
+
+          <button type="submit" class="govuk-button" data-module="govuk-button">
+            Upload and process
+          </button>
+        </form>
+
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+        <h2 class="govuk-heading-m">Existing components</h2>
+        <p class="govuk-body">Features can only be added to these existing components:</p>
+        
+        <ul class="govuk-list govuk-list--bullet">
+          {% for component in components %}
+          <li><strong>{{ component.component_code }}</strong> — {{ component.component_name }}</li>
+          {% endfor %}
+        </ul>
+
+        <p class="govuk-body">
+          <a href="/admin/components" class="govuk-link">Manage components</a> to add new ones before bulk upload.
+        </p>
+
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+        <h2 class="govuk-heading-m">Replace entire feature set</h2>
+        <p class="govuk-body">
+          Need to replace all features with a completely new set? This will archive the current features and mark all assessments as legacy.
+        </p>
+        <p class="govuk-body">
+          <a href="/admin/replace-features" class="govuk-button govuk-button--warning" data-module="govuk-button">
+            Replace feature set
+          </a>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

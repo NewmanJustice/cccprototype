@@ -1,0 +1,54 @@
+{% extends "layout.njk" %}
+{% block content %}
+<a class="govuk-back-link" href="/features">Back to catalogue</a>
+
+<h1 class="govuk-heading-l">{{ item.feature_name }}</h1>
+<p class="govuk-body">ID: <strong>{{ item.unique_id }}</strong></p>
+
+<div class="govuk-form-group">
+  <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+    <div class="govuk-checkboxes__item">
+      <input class="govuk-checkboxes__input" id="compare-{{ item.unique_id }}" name="compare-{{ item.unique_id }}" type="checkbox" value="{{ item.unique_id }}" data-compare-id="{{ item.unique_id }}" aria-describedby="compare-hint">
+      <label class="govuk-label govuk-checkboxes__label" for="compare-{{ item.unique_id }}">
+        Select this feature for comparison (max 5)
+      </label>
+    </div>
+  </div>
+  <p class="govuk-hint" id="compare-hint">Compare becomes available when you have selected two or more features. Selections persist across pages.</p>
+  <p class="govuk-!-margin-top-2">
+    <a class="govuk-button govuk-button--secondary govuk-button--disabled" data-compare-primary href="#" aria-disabled="true">Compare selected (0)</a>
+  </p>
+  <p class="govuk-error-message" data-compare-error hidden></p>
+</div>
+
+<dl class="govuk-summary-list">
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Component</dt>
+    <dd class="govuk-summary-list__value">{{ item.component_code }} — {{ item.component_name }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Feature Group</dt>
+    <dd class="govuk-summary-list__value">{{ item.feature_group_code }} — {{ item.feature_group }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">User Role</dt>
+    <dd class="govuk-summary-list__value">{{ item.as_a }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Description</dt>
+    <dd class="govuk-summary-list__value">{{ item.description }}</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">User story</dt>
+    <dd class="govuk-summary-list__value">As a {{ item.as_a }}{% if item.in_event %} in the event {{ item.in_event }}{% endif %}, I want {{ item.i_want }}{% if item.expected_outcomes %}, so that {{ item.expected_outcomes }}{% endif %}.</dd>
+  </div>
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">Dependencies</dt>
+    <dd class="govuk-summary-list__value">{{ item.dependencies or 'None' }}</dd>
+  </div>
+</dl>
+
+<p class="govuk-body">
+  <a class="govuk-link" href="/features">Back to catalogue</a>
+</p>
+{% endblock %}

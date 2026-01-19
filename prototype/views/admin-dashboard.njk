@@ -1,0 +1,143 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="govuk-heading-xl">Admin Dashboard</h1>
+          <a href="/admin/logout" class="govuk-link">Sign out</a>
+        </div>
+        
+        <div class="govuk-grid-row" style="margin-top: 30px;">
+          <div class="govuk-grid-column-one-third">
+            <div style="border: 3px solid #1d70b8; padding: 20px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Components</h2>
+              <p class="govuk-body-l"><strong>{{ components.length }}</strong> components</p>
+              <div class="govuk-button-group">
+                <a href="/admin/components" class="govuk-button" data-module="govuk-button">
+                  Manage
+                </a>
+                <a href="/admin/component/new" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                  Add new
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="govuk-grid-column-one-third">
+            <div style="border: 3px solid #1d70b8; padding: 20px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Feature Groups</h2>
+              <p class="govuk-body-l"><strong>{{ totalFeatureGroups }}</strong> groups</p>
+              <div class="govuk-button-group">
+                <a href="/admin/feature-groups" class="govuk-button" data-module="govuk-button">
+                  Manage
+                </a>
+                <a href="/admin/feature-group/new" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                  Add new
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="govuk-grid-column-one-third">
+            <div style="border: 3px solid #1d70b8; padding: 20px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Features</h2>
+              <p class="govuk-body-l"><strong>{{ totalFeatures }}</strong> features</p>
+              <div class="govuk-button-group">
+                <a href="/admin/features" class="govuk-button" data-module="govuk-button">
+                  Manage
+                </a>
+                <a href="/admin/feature/new" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                  Add new
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="govuk-grid-row" style="margin-top: 30px;">
+          <div class="govuk-grid-column-full">
+            <div style="border: 3px solid #1d70b8; padding: 30px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Assessments</h2>
+              <p class="govuk-body">View and manage all component assessments.</p>
+              <a href="/admin/assessments" class="govuk-button" data-module="govuk-button">
+                View assessments ({{ assessmentCount }})
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="govuk-grid-row" style="margin-top: 30px;">
+          <div class="govuk-grid-column-one-half">
+            <div style="border: 3px solid #f47738; padding: 30px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Bulk Operations</h2>
+              <p class="govuk-body">Upload features in bulk via Excel or replace the entire feature set.</p>
+              <div class="govuk-button-group">
+                <a href="/admin/bulk-upload" class="govuk-button" data-module="govuk-button">
+                  Bulk upload
+                </a>
+                <a href="/admin/replace-features" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                  Replace all features
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="govuk-grid-column-one-half">
+            <div style="border: 3px solid #00703c; padding: 30px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Audit Log</h2>
+              <p class="govuk-body">View all create, edit, and delete events with the ability to revert changes.</p>
+              <a href="/admin/audit-log" class="govuk-button" data-module="govuk-button">
+                View audit log
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="govuk-grid-row" style="margin-top: 30px;">
+          <div class="govuk-grid-column-full">
+            <div style="border: 3px solid #505a5f; padding: 30px; background: #f3f2f1;">
+              <h2 class="govuk-heading-l" style="margin-top: 0;">Legacy Feature Sets</h2>
+              <p class="govuk-body">View archived feature sets from previous full replacements and their associated assessments.</p>
+              <a href="/admin/legacy-features" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                View legacy feature sets
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <h2 class="govuk-heading-l" style="margin-top: 40px;">Component Summary</h2>
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Code</th>
+              <th scope="col" class="govuk-table__header">Component Name</th>
+              <th scope="col" class="govuk-table__header">Features</th>
+              <th scope="col" class="govuk-table__header">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for component in components %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ component.component_code }}</td>
+              <td class="govuk-table__cell">{{ component.component_name }}</td>
+              <td class="govuk-table__cell">{{ component.feature_count }}</td>
+              <td class="govuk-table__cell">
+                <a href="/admin/features?component={{ component.component_code }}" class="govuk-link">View features</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <p class="govuk-body" style="margin-top: 40px;">
+          <a href="/" class="govuk-link">Back to catalogue</a>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

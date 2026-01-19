@@ -1,0 +1,32 @@
+{% extends "layout.njk" %}
+{% block content %}
+<a class="govuk-back-link" href="/components">Back to components</a>
+
+<span class="govuk-caption-l">{{ component.component_code }}</span>
+<h1 class="govuk-heading-l">{{ component.component_name }}</h1>
+
+<p class="govuk-body">All features for this component.</p>
+
+<table class="govuk-table">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header">ID</th>
+      <th scope="col" class="govuk-table__header">Feature Group</th>
+      <th scope="col" class="govuk-table__header">Feature</th>
+      <th scope="col" class="govuk-table__header">User Role</th>
+      <th scope="col" class="govuk-table__header">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+    {% for item in items %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell"><a href="/feature/{{ item.unique_id }}" class="govuk-link">{{ item.unique_id }}</a></td>
+        <td class="govuk-table__cell">{{ item.feature_group_code }} — {{ item.feature_group }}</td>
+        <td class="govuk-table__cell">{{ item.feature_name }}</td>
+        <td class="govuk-table__cell">{{ item.as_a }}</td>
+        <td class="govuk-table__cell"><a class="govuk-link" href="/compare?ids={{ item.unique_id }}">Compare</a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

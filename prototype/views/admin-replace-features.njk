@@ -1,0 +1,85 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Replace Feature Set - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/bulk-upload" class="govuk-back-link">Back to bulk upload</a>
+
+        <div class="govuk-panel govuk-panel--confirmation" style="background-color: #d4351c;">
+          <h1 class="govuk-panel__title" style="color: white;">
+            Replace entire feature set
+          </h1>
+        </div>
+
+        <div class="govuk-warning-text">
+          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">Warning</span>
+            This action will permanently delete all current features and replace them with a new set.
+          </strong>
+        </div>
+
+        <h2 class="govuk-heading-l">What will happen</h2>
+
+        <ol class="govuk-list govuk-list--number">
+          <li>
+            <strong>Current features will be archived</strong><br>
+            <span class="govuk-body-s">The {{ featureCount }} features currently in the catalogue will be saved to a read-only archive.</span>
+          </li>
+          <li>
+            <strong>Assessments will be marked as legacy</strong><br>
+            <span class="govuk-body-s">{{ assessmentCount }} active assessments will be marked as "legacy" and linked to the archived feature set.</span>
+          </li>
+          <li>
+            <strong>All current features will be deleted</strong><br>
+            <span class="govuk-body-s">The live feature catalogue will be emptied.</span>
+          </li>
+          <li>
+            <strong>New features will be uploaded</strong><br>
+            <span class="govuk-body-s">Your uploaded file will become the new feature catalogue with auto-generated codes.</span>
+          </li>
+        </ol>
+
+        <div class="govuk-inset-text">
+          <p class="govuk-body"><strong>Legacy data remains accessible:</strong></p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>Archived feature sets can be viewed in Admin > Legacy Feature Sets</li>
+            <li>Legacy assessments remain searchable and viewable (read-only)</li>
+          </ul>
+        </div>
+
+        <h2 class="govuk-heading-m">Step 1: Download template</h2>
+        <p class="govuk-body">
+          <a href="/templates/Full_Feature_Set_Template.xlsx" class="govuk-link" download>
+            Download Full Feature Set Template (Excel)
+          </a>
+        </p>
+
+        <h2 class="govuk-heading-m">Step 2: Upload new feature set</h2>
+
+        <form method="POST" action="/admin/replace-features" enctype="multipart/form-data">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="file">
+              Select Excel file containing new features
+            </label>
+            <input class="govuk-file-upload" id="file" name="file" type="file" accept=".xlsx,.xls">
+          </div>
+
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+              Replace all features
+            </button>
+            <a href="/admin/bulk-upload" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

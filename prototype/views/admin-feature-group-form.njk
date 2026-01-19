@@ -1,0 +1,80 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}{% if editing %}Edit{% else %}Add{% endif %} Feature Group - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/feature-groups" class="govuk-back-link">Back to feature groups</a>
+        
+        <h1 class="govuk-heading-xl">{% if editing %}Edit{% else %}Add new{% endif %} feature group</h1>
+        
+        {% if error %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                <li>{{ error }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <form method="post" action="{% if editing %}/admin/feature-group/{{ featureGroup.component_code }}/{{ featureGroup.feature_group_code }}/edit{% else %}/admin/feature-group/new{% endif %}">
+          {% if not editing %}
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="component_code">
+              Component
+            </label>
+            <div class="govuk-hint">
+              Select the component this feature group belongs to.
+            </div>
+            <select class="govuk-select" id="component_code" name="component_code" required>
+              <option value="">Select a component</option>
+              {% for component in components %}
+              <option value="{{ component.component_code }}" {% if component.component_code == preselectedComponent %}selected{% endif %}>
+                {{ component.component_code }} - {{ component.component_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          {% else %}
+          <dl class="govuk-summary-list govuk-summary-list--no-border">
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Component</dt>
+              <dd class="govuk-summary-list__value">{{ featureGroup.component_code }} - {{ featureGroup.component_name }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Group Code</dt>
+              <dd class="govuk-summary-list__value">{{ featureGroup.feature_group_code }}</dd>
+            </div>
+          </dl>
+          {% endif %}
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="feature_group_name">
+              Feature group name
+            </label>
+            <div class="govuk-hint">
+              Give the feature group a descriptive name (e.g., "User Authentication", "Payment Processing").
+            </div>
+            <input class="govuk-input" id="feature_group_name" name="feature_group_name" type="text" 
+              value="{{ featureGroup.feature_group_name if featureGroup else '' }}" required>
+          </div>
+          
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+              {% if editing %}Save changes{% else %}Create feature group{% endif %}
+            </button>
+            <a href="/admin/feature-groups" class="govuk-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

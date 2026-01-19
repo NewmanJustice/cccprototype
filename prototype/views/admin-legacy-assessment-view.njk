@@ -1,0 +1,119 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Legacy Assessment - {{ assessment.code }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/legacy-features/{{ legacySet.id }}" class="govuk-back-link">Back to legacy feature set</a>
+
+        <span class="govuk-caption-xl">Legacy Assessment (Read-only)</span>
+        <h1 class="govuk-heading-xl">{{ assessment.service_name }}</h1>
+
+        <div class="govuk-inset-text">
+          <p class="govuk-body">
+            This assessment was completed against a previous version of the feature catalogue 
+            and is preserved for historical reference.
+          </p>
+        </div>
+
+        <h2 class="govuk-heading-l">Assessment Details</h2>
+
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Assessment code</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.code }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">User name</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.user_name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Service name</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.service_name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Service type</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.service_type }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Created</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.created_at }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Feature set version</dt>
+            <dd class="govuk-summary-list__value">
+              <a href="/admin/legacy-features/{{ legacySet.id }}" class="govuk-link">{{ legacySet.name }}</a>
+            </dd>
+          </div>
+        </dl>
+
+        <h2 class="govuk-heading-l">Responses Summary</h2>
+
+        {% set yesCount = 0 %}
+        {% set noCount = 0 %}
+        {% set maybeCount = 0 %}
+        {% for feature in features %}
+          {% if feature.response == 'yes' %}
+            {% set yesCount = yesCount + 1 %}
+          {% elif feature.response == 'no' %}
+            {% set noCount = noCount + 1 %}
+          {% elif feature.response == 'maybe' %}
+            {% set maybeCount = maybeCount + 1 %}
+          {% endif %}
+        {% endfor %}
+
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Yes (Required)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--green">{{ yesCount }}</strong></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">No (Not required)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--grey">{{ noCount }}</strong></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Maybe (To investigate)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--yellow">{{ maybeCount }}</strong></dd>
+          </div>
+        </dl>
+
+        <h2 class="govuk-heading-l">All Responses</h2>
+
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">ID</th>
+              <th scope="col" class="govuk-table__header">Feature</th>
+              <th scope="col" class="govuk-table__header">Response</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for feature in features %}
+            {% if feature.feature_name != '_PLACEHOLDER_' %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ feature.unique_id }}</td>
+              <td class="govuk-table__cell">{{ feature.feature_name }}</td>
+              <td class="govuk-table__cell">
+                {% if feature.response == 'yes' %}
+                <strong class="govuk-tag govuk-tag--green">Yes</strong>
+                {% elif feature.response == 'no' %}
+                <strong class="govuk-tag govuk-tag--grey">No</strong>
+                {% elif feature.response == 'maybe' %}
+                <strong class="govuk-tag govuk-tag--yellow">Maybe</strong>
+                {% else %}
+                <strong class="govuk-tag govuk-tag--blue">Not answered</strong>
+                {% endif %}
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

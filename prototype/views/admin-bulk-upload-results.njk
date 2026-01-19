@@ -1,0 +1,74 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Upload Results - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/bulk-upload" class="govuk-back-link">Back to bulk upload</a>
+
+        <div class="govuk-panel govuk-panel--confirmation">
+          <h1 class="govuk-panel__title">Upload complete</h1>
+          <div class="govuk-panel__body">
+            {{ results.inserted }} features added
+          </div>
+        </div>
+
+        <h2 class="govuk-heading-l">Summary</h2>
+
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Features inserted</dt>
+            <dd class="govuk-summary-list__value">
+              <strong class="govuk-tag govuk-tag--green">{{ results.inserted }}</strong>
+            </dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Rows skipped</dt>
+            <dd class="govuk-summary-list__value">
+              {% if results.skipped > 0 %}
+              <strong class="govuk-tag govuk-tag--red">{{ results.skipped }}</strong>
+              {% else %}
+              <strong class="govuk-tag govuk-tag--grey">0</strong>
+              {% endif %}
+            </dd>
+          </div>
+        </dl>
+
+        {% if results.errors.length > 0 %}
+        <h2 class="govuk-heading-m">Errors</h2>
+        <p class="govuk-body">The following rows could not be processed:</p>
+        
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Row</th>
+              <th scope="col" class="govuk-table__header">Error</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for error in results.errors %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ error.row }}</td>
+              <td class="govuk-table__cell">{{ error.message }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <div class="govuk-button-group">
+          <a href="/admin/features" class="govuk-button" data-module="govuk-button">
+            View all features
+          </a>
+          <a href="/admin/bulk-upload" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            Upload more
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

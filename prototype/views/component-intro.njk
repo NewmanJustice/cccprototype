@@ -1,0 +1,64 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}{{ component.component_name }} - Assessment{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <span class="govuk-caption-xl">Component {{ componentNumber }} of {{ totalComponents }}</span>
+        <h1 class="govuk-heading-xl">{{ component.component_name }} ({{ component.component_code }})</h1>
+        
+        <div class="govuk-panel govuk-panel--confirmation" style="background-color: #f3f2f1;">
+          <div class="govuk-panel__body" style="color: #0b0c0c;">
+            <strong>Assessment code:</strong> {{ assessment.code }}
+          </div>
+        </div>
+        
+        <p class="govuk-body">Save this code to resume your assessment later.</p>
+        
+        {% if description.summary %}
+        <h2 class="govuk-heading-l">What is {{ component.component_name }}?</h2>
+        
+        <p class="govuk-body">{{ description.summary }}</p>
+        
+        {% if description.capabilities %}
+        <h3 class="govuk-heading-m">Key capabilities</h3>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for capability in description.capabilities %}
+          <li>{{ capability }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if description.users %}
+        <h3 class="govuk-heading-m">Who uses {{ component.component_name }}?</h3>
+        <p class="govuk-body">{{ description.users }}</p>
+        {% endif %}
+        {% else %}
+        <p class="govuk-body">{{ component.component_name }} provides core functionality for HMCTS digital services.</p>
+        {% endif %}
+        
+        <div class="govuk-inset-text">
+          <p>You'll now review <strong>{{ component.feature_count }} feature{% if component.feature_count != 1 %}s{% endif %}</strong> of {{ component.component_name }} to determine which ones your service needs.</p>
+          <p>For each feature, select:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li><strong>Yes</strong> - Your service needs this feature</li>
+            <li><strong>No</strong> - Your service does not need this feature</li>
+            <li><strong>Maybe</strong> - You're unsure or need to investigate further</li>
+          </ul>
+        </div>
+        
+        <div class="govuk-button-group">
+          <a href="/assessment/{{ assessment.id }}/walkthrough/{{ componentCode }}" class="govuk-button" data-module="govuk-button">Continue to features</a>
+          {% if prevCode %}
+          <a href="/assessment/{{ assessment.id }}/intro/{{ prevCode }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Previous component</a>
+          {% endif %}
+          <a href="/assessment/{{ assessment.id }}/summary" class="govuk-link">Skip to summary</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

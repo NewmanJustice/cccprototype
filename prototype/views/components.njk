@@ -1,0 +1,27 @@
+{% extends "layout.njk" %}
+{% block content %}
+<h1 class="govuk-heading-l">Common Components</h1>
+
+<p class="govuk-body">Browse all components and their features. Click a component to see all its features.</p>
+
+<table class="govuk-table">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header">Code</th>
+      <th scope="col" class="govuk-table__header">Component Name</th>
+      <th scope="col" class="govuk-table__header">Features</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+    {% for c in components %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell"><a href="/component/{{ c.component_code }}" class="govuk-link">{{ c.component_code }}</a></td>
+        <td class="govuk-table__cell">{{ c.component_name }}</td>
+        <td class="govuk-table__cell">{{ c.feature_count }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="govuk-body"><a href="/features" class="govuk-link">Browse all features</a></p>
+{% endblock %}

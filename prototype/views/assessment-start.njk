@@ -1,0 +1,64 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Start Assessment - HMCTS Common Components Catalogue{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">Guided Requirements Assessment</h1>
+        
+        <p class="govuk-body-l">This guided journey will walk you through the HMCTS Common Components to help identify which features your service needs.</p>
+        
+        <div class="govuk-inset-text">
+          <p>You'll review <strong>{{ componentCount }} components</strong> with <strong>{{ featureCount }} features</strong>.</p>
+          <p>This assessment will take approximately <strong>30-45 minutes</strong>.</p>
+        </div>
+        
+        {% if error %}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+              <li>{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="/assessment/start" novalidate>
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="user_name">Your name</label>
+            <input class="govuk-input" id="user_name" name="user_name" type="text" value="{{ data.user_name if data else '' }}">
+          </div>
+          
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="service_name">Service name</label>
+            <div class="govuk-hint">For example: Divorce Service, Probate Service</div>
+            <input class="govuk-input" id="service_name" name="service_name" type="text" value="{{ data.service_name if data else '' }}">
+          </div>
+          
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="service_type">Service type</label>
+            <select class="govuk-select" id="service_type" name="service_type">
+              <option value="">Select a service type</option>
+              <option value="CFT" {% if data and data.service_type == 'CFT' %}selected{% endif %}>CFT (Crime, Family, Tribunals)</option>
+              <option value="Civil" {% if data and data.service_type == 'Civil' %}selected{% endif %}>Civil</option>
+              <option value="Crime" {% if data and data.service_type == 'Crime' %}selected{% endif %}>Crime</option>
+              <option value="Family" {% if data and data.service_type == 'Family' %}selected{% endif %}>Family</option>
+              <option value="Tribunals" {% if data and data.service_type == 'Tribunals' %}selected{% endif %}>Tribunals</option>
+              <option value="Cross-cutting" {% if data and data.service_type == 'Cross-cutting' %}selected{% endif %}>Cross-cutting</option>
+            </select>
+          </div>
+          
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">Start assessment</button>
+            <a class="govuk-link" href="/assessment/resume">Resume a saved assessment</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

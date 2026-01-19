@@ -1,0 +1,45 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Delete Component - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/components" class="govuk-back-link">Back to components</a>
+        
+        <div class="govuk-panel govuk-panel--confirmation" style="background-color: #d4351c;">
+          <h1 class="govuk-panel__title" style="color: white;">
+            Delete component
+          </h1>
+          <div class="govuk-panel__body" style="color: white;">
+            <strong>{{ component.component_code }} — {{ component.component_name }}</strong>
+          </div>
+        </div>
+        
+        <h2 class="govuk-heading-l">Are you sure?</h2>
+        
+        <p class="govuk-body">
+          You are about to permanently delete this component and all its features. This action cannot be undone.
+        </p>
+        
+        <div class="govuk-inset-text">
+          <strong>Component:</strong> {{ component.component_code }} — {{ component.component_name }}
+        </div>
+        
+        <div class="govuk-button-group">
+          <form method="POST" action="/admin/component/{{ component.component_code }}/delete" style="display: inline;">
+            <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+              Yes, permanently delete
+            </button>
+          </form>
+          <a href="/admin/components" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            Cancel and go back
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

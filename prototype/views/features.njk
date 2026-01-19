@@ -1,0 +1,108 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Feature Catalogue</h1>
+
+<div class="govuk-inset-text">
+  Select up to 5 features to compare. The compare button activates when you pick two or more.
+</div>
+
+<p class="govuk-!-margin-bottom-3">
+  <a class="govuk-button govuk-button--secondary govuk-button--disabled" data-compare-primary href="#" aria-disabled="true">Compare selected (0)</a>
+</p>
+<p class="govuk-error-message" data-compare-error hidden></p>
+
+<form method="get" action="/features" class="govuk-grid-row">
+  <div class="govuk-grid-column-one-third">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="q">Search</label>
+      <input class="govuk-input" id="q" name="q" type="text" value="{{ filters.q }}" placeholder="Keyword or ID">
+    </div>
+  </div>
+  <div class="govuk-grid-column-one-third">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="component">Component</label>
+      <select class="govuk-select" id="component" name="component">
+        <option value="" {% if filters.component == '' %}selected{% endif %}>All</option>
+        {% for c in components %}
+          <option value="{{ c.component_code }}" {% if filters.component == c.component_code %}selected{% endif %}>{{ c.component_code }} — {{ c.component_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="govuk-grid-column-one-third">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="role">User role</label>
+      <select class="govuk-select" id="role" name="role">
+        <option value="" {% if filters.role == '' %}selected{% endif %}>All</option>
+        {% for r in roles %}
+          <option value="{{ r.as_a }}" {% if filters.role == r.as_a %}selected{% endif %}>{{ r.as_a }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="govuk-grid-column-one-third">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="serviceType">Service type</label>
+      <select class="govuk-select" id="serviceType" name="serviceType">
+        <option value="" {% if filters.serviceType == '' %}selected{% endif %}>All</option>
+        {% for s in serviceTypes %}
+          <option value="{{ s.service_type }}" {% if filters.serviceType == s.service_type %}selected{% endif %}>{{ s.service_type }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="govuk-grid-column-one-third">
+    <button class="govuk-button" data-module="govuk-button" type="submit">Filter</button>
+  </div>
+</form>
+
+<table class="govuk-table">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header">Select</th>
+      <th scope="col" class="govuk-table__header">ID</th>
+      <th scope="col" class="govuk-table__header">Component</th>
+      <th scope="col" class="govuk-table__header">Feature Group</th>
+      <th scope="col" class="govuk-table__header">Feature</th>
+      <th scope="col" class="govuk-table__header">User Role</th>
+      <th scope="col" class="govuk-table__header">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+    {% for item in items %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+          <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="compare-{{ item.unique_id }}" type="checkbox" data-compare-id="{{ item.unique_id }}">
+              <label class="govuk-label govuk-checkboxes__label" for="compare-{{ item.unique_id }}">
+                <span class="govuk-visually-hidden">Select {{ item.unique_id }} for comparison</span>
+              </label>
+            </div>
+          </div>
+        </td>
+        <td class="govuk-table__cell"><a href="/feature/{{ item.unique_id }}" class="govuk-link">{{ item.unique_id }}</a></td>
+        <td class="govuk-table__cell"><a href="/component/{{ item.component_code }}" class="govuk-link">{{ item.component_code }}</a> — {{ item.component_name }}</td>
+        <td class="govuk-table__cell">{{ item.feature_group_code }} — {{ item.feature_group }}</td>
+        <td class="govuk-table__cell">{{ item.feature_name }}</td>
+        <td class="govuk-table__cell">{{ item.as_a }}</td>
+        <td class="govuk-table__cell">
+          <a class="govuk-link" href="/feature/{{ item.unique_id }}">View</a>
+          <span class="govuk-!-margin-left-2"><a class="govuk-link" data-compare-inline="{{ item.unique_id }}" hidden>Compare selected</a></span>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<nav class="govuk-pagination" role="navigation" aria-label="results">
+  <ul class="govuk-pagination__list">
+    {% for p in range(1, pages + 1) %}
+      <li class="govuk-pagination__item {% if p == page %}govuk-pagination__item--current{% endif %}">
+        <a class="govuk-link govuk-pagination__link" href="/features?q={{ filters.q }}&component={{ filters.component }}&role={{ filters.role }}&serviceType={{ filters.serviceType }}&page={{ p }}" {% if p == page %}aria-current="page"{% endif %}>{{ p }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endblock %}

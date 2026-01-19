@@ -1,0 +1,67 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Manage Features - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <a href="/admin" class="govuk-back-link">Back to dashboard</a>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="govuk-heading-xl">Manage Features</h1>
+          <a href="/admin/logout" class="govuk-link">Sign out</a>
+        </div>
+        
+        <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 30px;">
+          <div style="flex: 1;">
+            <label class="govuk-label" for="filter-component">Filter by component</label>
+            <select class="govuk-select" id="filter-component" onchange="window.location.href='/admin/features?component=' + this.value">
+              <option value="">All components</option>
+              {% for component in components %}
+              <option value="{{ component.component_code }}" {% if component.component_code == selectedComponent %}selected{% endif %}>
+                {{ component.component_code }} - {{ component.component_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <a href="/admin/feature/new" class="govuk-button" data-module="govuk-button">
+            Add new feature
+          </a>
+        </div>
+        
+        {% if features.length > 0 %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">ID</th>
+              <th scope="col" class="govuk-table__header">Component</th>
+              <th scope="col" class="govuk-table__header">Feature Name</th>
+              <th scope="col" class="govuk-table__header">Description</th>
+              <th scope="col" class="govuk-table__header">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for feature in features %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ feature.unique_id }}</td>
+              <td class="govuk-table__cell">{{ feature.component_code }}</td>
+              <td class="govuk-table__cell">{{ feature.feature_name }}</td>
+              <td class="govuk-table__cell">{{ feature.description | truncate(80) }}</td>
+              <td class="govuk-table__cell">
+                <a href="/admin/feature/{{ feature.unique_id }}/edit" class="govuk-link">Edit</a> |
+                <a href="/admin/feature/{{ feature.unique_id }}/delete-confirm" class="govuk-link" style="color: #d4351c;">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="govuk-body">No features found. <a href="/admin/feature/new" class="govuk-link">Add a new feature</a>.</p>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

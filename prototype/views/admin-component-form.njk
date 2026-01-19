@@ -1,0 +1,56 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}{% if editing %}Edit{% else %}Add{% endif %} Component - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/components" class="govuk-back-link">Back to components</a>
+        
+        <h1 class="govuk-heading-xl">{% if editing %}Edit{% else %}Add New{% endif %} Component</h1>
+        
+        {% if error %}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+              <li>{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{% if editing %}/admin/component/{{ component.component_code }}/edit{% else %}/admin/component/new{% endif %}" novalidate>
+          {% if not editing %}
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="component_code">
+              Component Code
+            </label>
+            <div class="govuk-hint">
+              3 letters, uppercase (e.g., CCD, XUI, FEE)
+            </div>
+            <input class="govuk-input govuk-input--width-5" id="component_code" name="component_code" type="text" maxlength="3" style="text-transform: uppercase;" value="{{ component.component_code if component else '' }}" required>
+          </div>
+          {% endif %}
+          
+          <div class="govuk-form-group {% if error %}govuk-form-group--error{% endif %}">
+            <label class="govuk-label" for="component_name">
+              Component Name
+            </label>
+            <input class="govuk-input" id="component_name" name="component_name" type="text" value="{{ component.component_name if component else '' }}" required>
+          </div>
+          
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+              {% if editing %}Update{% else %}Create{% endif %} component
+            </button>
+            <a class="govuk-link" href="/admin/components">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

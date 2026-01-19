@@ -1,0 +1,65 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Delete Feature Group - Admin{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/feature-groups?component={{ featureGroup.component_code }}" class="govuk-back-link">Back to feature groups</a>
+        
+        <div class="govuk-warning-text">
+          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            You are about to delete a feature group
+          </strong>
+        </div>
+        
+        <h1 class="govuk-heading-xl">Delete feature group</h1>
+        
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Component</dt>
+            <dd class="govuk-summary-list__value">{{ featureGroup.component_code }} - {{ featureGroup.component_name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Group Code</dt>
+            <dd class="govuk-summary-list__value">{{ featureGroup.feature_group_code }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Group Name</dt>
+            <dd class="govuk-summary-list__value">{{ featureGroup.feature_group_name or '(unnamed)' }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Features in this group</dt>
+            <dd class="govuk-summary-list__value">{{ featureCount }}</dd>
+          </div>
+        </dl>
+        
+        {% if featureCount > 0 %}
+        <div class="govuk-warning-text">
+          <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+          <strong class="govuk-warning-text__text">
+            <span class="govuk-visually-hidden">Warning</span>
+            This will also delete <strong>{{ featureCount }}</strong> feature{% if featureCount > 1 %}s{% endif %} in this group. This action cannot be undone.
+          </strong>
+        </div>
+        {% endif %}
+        
+        <p class="govuk-body">Are you sure you want to delete this feature group?</p>
+        
+        <form method="post" action="/admin/feature-group/{{ featureGroup.component_code }}/{{ featureGroup.feature_group_code }}/delete">
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+              Yes, delete feature group
+            </button>
+            <a href="/admin/feature-groups?component={{ featureGroup.component_code }}" class="govuk-link">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

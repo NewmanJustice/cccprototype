@@ -1,0 +1,116 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Assessment Summary{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-panel govuk-panel--confirmation">
+          <h1 class="govuk-panel__title">
+            Assessment {% if componentStats.length == 0 or notAssessed.length > 0 %}In Progress{% else %}Complete{% endif %}
+          </h1>
+          <div class="govuk-panel__body">
+            <strong>Assessment code:</strong> {{ assessment.code }}
+          </div>
+        </div>
+        
+        <p class="govuk-body">Save this code to access your assessment results later.</p>
+        
+        <h2 class="govuk-heading-l">Assessment details</h2>
+        
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Your name</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.user_name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Service name</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.service_name }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Service type</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.service_type }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Completed</dt>
+            <dd class="govuk-summary-list__value">{{ assessment.updated_at }}</dd>
+          </div>
+        </dl>
+        
+        <h2 class="govuk-heading-l">Results by component</h2>
+        
+        {% if componentStats.length > 0 %}
+        {% for component in componentStats %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 class="govuk-heading-m" style="margin-bottom: 0;">{{ component.name }} ({{ component.code }})</h3>
+          <a href="/assessment/{{ assessment.id }}/walkthrough/{{ component.code }}" class="govuk-link" style="white-space: nowrap;">Edit responses</a>
+        </div>
+        <dl class="govuk-summary-list" style="margin-top: 10px;">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Yes (Required)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--green">{{ component.yes }}</strong></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">No (Not required)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--grey">{{ component.no }}</strong></dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Maybe (To investigate)</dt>
+            <dd class="govuk-summary-list__value"><strong class="govuk-tag govuk-tag--yellow">{{ component.maybe }}</strong></dd>
+          </div>
+        </dl>
+        {% endfor %}
+        {% else %}
+        <p class="govuk-body">No components have been assessed yet.</p>
+        {% endif %}
+        
+        {% if notAssessed.length > 0 %}
+        <h2 class="govuk-heading-l" style="margin-top: 40px;">Components not yet assessed</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for component in notAssessed %}
+          <li>
+            <a href="/assessment/{{ assessment.id }}/intro/{{ component.code }}" class="govuk-link">{{ component.name }} ({{ component.code }})</a> - {{ component.feature_count }} features
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        
+        <div class="govuk-button-group">
+          <a href="/assessment/{{ assessment.id }}/report" class="govuk-button" data-module="govuk-button" target="_blank">
+            View full report
+          </a>
+          <a href="/assessment/{{ assessment.id }}/export-csv" class="govuk-button govuk-button--secondary" data-module="govuk-button" download>
+            Download CSV
+          </a>
+          <button type="button" class="govuk-button govuk-button--secondary" data-module="govuk-button" onclick="window.print()">
+            Print summary
+          </button>
+        </div>
+        
+        <p class="govuk-body" style="margin-top: 20px;">
+          <a class="govuk-link" href="/assessment/start">Start new assessment</a>
+        </p>
+        
+        <details class="govuk-details" data-module="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              What happens next?
+            </span>
+          </summary>
+          <div class="govuk-details__text">
+            <p class="govuk-body">Based on your responses:</p>
+            <ul class="govuk-list govuk-list--bullet">
+              <li>Features marked "Yes" should be included in your service requirements</li>
+              <li>Features marked "Maybe" require further investigation with your team and the Common Components team</li>
+              <li>Features marked "No" can be excluded from your initial implementation</li>
+            </ul>
+            <p class="govuk-body">For support with implementing these components, contact the HMCTS Common Components team.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

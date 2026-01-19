@@ -1,0 +1,89 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}{{ legacySet.name }} - Legacy Feature Set{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <a href="/admin/legacy-features" class="govuk-back-link">Back to legacy feature sets</a>
+
+        <span class="govuk-caption-xl">Legacy Feature Set (Read-only)</span>
+        <h1 class="govuk-heading-xl">{{ legacySet.name }}</h1>
+
+        <div class="govuk-inset-text">
+          <p class="govuk-body">
+            <strong>Archived:</strong> {{ legacySet.created_at }}<br>
+            <strong>Total features:</strong> {{ features | length }}
+          </p>
+        </div>
+
+        {% if assessments.length > 0 %}
+        <h2 class="govuk-heading-l">Linked Legacy Assessments</h2>
+        <p class="govuk-body">The following assessments were completed against this feature set:</p>
+        
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Code</th>
+              <th scope="col" class="govuk-table__header">User</th>
+              <th scope="col" class="govuk-table__header">Service</th>
+              <th scope="col" class="govuk-table__header">Date</th>
+              <th scope="col" class="govuk-table__header">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for assessment in assessments %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ assessment.code }}</td>
+              <td class="govuk-table__cell">{{ assessment.user_name }}</td>
+              <td class="govuk-table__cell">{{ assessment.service_name }}</td>
+              <td class="govuk-table__cell">{{ assessment.created_at }}</td>
+              <td class="govuk-table__cell">
+                <a href="/admin/legacy-assessment/{{ assessment.id }}" class="govuk-link">View</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <h2 class="govuk-heading-l">Features by Component</h2>
+
+        {% for component in components %}
+        <details class="govuk-details" data-module="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+              {{ component.code }} — {{ component.name }} ({{ component.features | length }} features)
+            </span>
+          </summary>
+          <div class="govuk-details__text">
+            <table class="govuk-table">
+              <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                  <th scope="col" class="govuk-table__header" style="width: 15%;">ID</th>
+                  <th scope="col" class="govuk-table__header" style="width: 25%;">Feature Name</th>
+                  <th scope="col" class="govuk-table__header" style="width: 40%;">Description</th>
+                  <th scope="col" class="govuk-table__header" style="width: 20%;">User Role</th>
+                </tr>
+              </thead>
+              <tbody class="govuk-table__body">
+                {% for feature in component.features %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell">{{ feature.unique_id }}</td>
+                  <td class="govuk-table__cell">{{ feature.feature_name }}</td>
+                  <td class="govuk-table__cell">{{ feature.description | truncate(100) }}</td>
+                  <td class="govuk-table__cell">{{ feature.as_a }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
