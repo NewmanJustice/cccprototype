@@ -1,3 +1,5 @@
+claudeinit.sh
+
 # Node modules
 node_modules/
 
@@ -24,3 +26,34 @@ build/
 # Misc
 *.swp
 *.swo
+
+# Certificates and keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+
+# Cloud provider configs
+.aws/
+.azure/
+.kube/
+*kubeconfig*
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.ppk
+
+# Sensitive patterns
+*secret*
+*credential*
+*password*
+
+# Azure publish profiles
+*.publishsettings
+*.PublishSettings
+publishProfile.xml
+*publishProfile*.xml
+publishProfile.xml
