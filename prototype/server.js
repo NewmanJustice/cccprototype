@@ -18,12 +18,12 @@ const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'data', 'catalogue.db');
 
 // Admin password and lockout tracking
-const ADMIN_PASSWORD = 'snowball';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'snowball';
 const loginAttempts = new Map(); // { ip: [{ timestamp: Date, success: boolean }] }
 
 // Session middleware
 app.use(session({
-  secret: 'hmcts-catalogue-secret-key-2026',
+  secret: process.env.SESSION_SECRET || 'hmcts-catalogue-secret-key-2026',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 3600000 } // 1 hour
@@ -51,6 +51,36 @@ app.set('view engine', 'njk');
 
 // DB
 const db = new sqlite3.Database(DB_PATH);
+
+// ---- Basic Auth ----
+const USER = process.env.DOCS_USER;
+const PASS = process.env.DOCS_PASS;
+
+if (!USER || !PASS) {
+  console.error("Missing DOCS_USER or DOCS_PASS environment variables.");
+  process.exit(1);
+}
+
+app.use((req, res, next) => {
+  // allow health checks through unauthenticated
+  if (req.path === "/health") return next();
+
+  const header = req.headers.authorization || "";
+  const [scheme, encoded] = header.split(" ");
+
+  if (scheme !== "Basic" || !encoded) {
+    res.set("WWW-Authenticate", 'Basic realm="HMCTS Catalogue"');
+    return res.status(401).send("Authentication required.");
+  }
+
+  const decoded = Buffer.from(encoded, "base64").toString("utf8");
+  const [username, password] = decoded.split(":");
+
+  if (username === USER && password === PASS) return next();
+
+  res.set("WWW-Authenticate", 'Basic realm="HMCTS Catalogue"');
+  return res.status(401).send("Invalid credentials.");
+});
 
 // Audit logging helper
 function logAuditEvent(actionType, entityType, entityId, oldData, newData, username) {
@@ -113,6 +143,10 @@ function buildWhere(filters, params) {
 }
 
 // Routes
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 app.get('/', (req, res) => {
   res.redirect('/features');
 });
