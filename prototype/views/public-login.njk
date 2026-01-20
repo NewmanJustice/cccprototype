@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/govuk-frontend.min.css">
 </head>
-<body class="govuk-template__body">
+<body class="govuk-template__body govuk-frontend-supported">
   <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
 
   <header class="govuk-header" role="banner">
@@ -69,7 +69,6 @@
     </main>
   </div>
 
-  <script src="/govuk-frontend.min.js"></script>
-  <script>window.GOVUKFrontend.initAll()</script>
+  <!-- JavaScript not needed for simple login form -->
 </body>
 </html>
