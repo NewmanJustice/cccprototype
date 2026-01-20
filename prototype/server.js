@@ -64,6 +64,14 @@ function requireLogin(req, res, next) {
     return next();
   }
 
+  // Allow static assets (CSS, JS, images, fonts, etc.)
+  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.map'];
+  const isStaticFile = staticExtensions.some(ext => req.path.toLowerCase().endsWith(ext));
+
+  if (isStaticFile) {
+    return next();
+  }
+
   // Check if user is logged in
   if (req.session.loggedIn) {
     return next();
