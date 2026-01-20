@@ -52,35 +52,28 @@ app.set('view engine', 'njk');
 // DB
 const db = new sqlite3.Database(DB_PATH);
 
-// ---- Basic Auth ----
-const USER = process.env.DOCS_USER;
-const PASS = process.env.DOCS_PASS;
+// ---- Simple Login Authentication ----
+const PUBLIC_ACCESS_CODE = process.env.PUBLIC_ACCESS_CODE || process.env.DOCS_PASS || 'prototype2026';
 
-if (!USER || !PASS) {
-  console.error("Missing DOCS_USER or DOCS_PASS environment variables.");
-  process.exit(1);
-}
+// Session-based auth middleware
+function requireLogin(req, res, next) {
+  // Public routes that don't require login
+  const publicRoutes = ['/login', '/health'];
 
-app.use((req, res, next) => {
-  // allow health checks through unauthenticated
-  if (req.path === "/health") return next();
-
-  const header = req.headers.authorization || "";
-  const [scheme, encoded] = header.split(" ");
-
-  if (scheme !== "Basic" || !encoded) {
-    res.set("WWW-Authenticate", 'Basic realm="HMCTS Catalogue"');
-    return res.status(401).send("Authentication required.");
+  if (publicRoutes.includes(req.path)) {
+    return next();
   }
 
-  const decoded = Buffer.from(encoded, "base64").toString("utf8");
-  const [username, password] = decoded.split(":");
+  // Check if user is logged in
+  if (req.session.loggedIn) {
+    return next();
+  }
 
-  if (username === USER && password === PASS) return next();
+  // Redirect to login page
+  res.redirect('/login');
+}
 
-  res.set("WWW-Authenticate", 'Basic realm="HMCTS Catalogue"');
-  return res.status(401).send("Invalid credentials.");
-});
+app.use(requireLogin);
 
 // Audit logging helper
 function logAuditEvent(actionType, entityType, entityId, oldData, newData, username) {
@@ -145,6 +138,34 @@ function buildWhere(filters, params) {
 // Routes
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// Login routes
+app.get('/login', (req, res) => {
+  if (req.session.loggedIn) {
+    return res.redirect('/features');
+  }
+  res.render('public-login.njk', { error: null });
+});
+
+app.post('/login', (req, res) => {
+  const { password } = req.body;
+
+  if (password === PUBLIC_ACCESS_CODE) {
+    req.session.loggedIn = true;
+    return res.redirect('/features');
+  }
+
+  res.render('public-login.njk', { error: 'Incorrect access code. Please try again.' });
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.redirect('/login');
+  });
 });
 
 app.get('/', (req, res) => {
